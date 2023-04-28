@@ -12,12 +12,14 @@ class HeadGUI:
         self.lowerframe = Frame(self.root)
         self.editframe = Frame(self.root)
         self.bottomframe = Frame(self.root)
+
         #Pack Frames
         self.topframe.pack()
         self.middleframe.pack()
         self.lowerframe.pack()
         self.editframe.pack()
         self.bottomframe.pack()
+
         # set the window title
         self.root.title("DET 410 Inventory and Requisitions")
 
@@ -38,20 +40,20 @@ class HeadGUI:
         entry.pack(expand=True, fill='y')
 
         #Create Add button
-        Searchbutton = tk.Button(self.lowerframe, text='ADD', command='search', width=30, height=5)
-        Searchbutton.pack(side=tk.LEFT)
+        Addbutton = tk.Button(self.lowerframe, text='ADD', command='search', width=30, height=5)
+        Addbutton.pack(side=tk.LEFT)
 
         #Create Delete Button
-        Searchbutton = tk.Button(self.lowerframe, text='DELETE', command='search', width=30, height=5)
-        Searchbutton.pack(side=tk.LEFT)
+        Deletebutton = tk.Button(self.lowerframe, text='DELETE', command='search', width=30, height=5)
+        Deletebutton.pack(side=tk.LEFT)
 
         #Create Edit Button
-        Searchbutton = tk.Button(self.lowerframe, text='EDIT', command='search', width=30, height=5)
-        Searchbutton.pack(side=tk.LEFT)
+        Editbutton = tk.Button(self.lowerframe, text='EDIT', command='search', width=30, height=5)
+        Editbutton.pack(side=tk.LEFT)
 
         #Create  Reserve Button
-        Searchbutton = tk.Button(self.lowerframe, text='RESERVE', command='search', width=30, height=5)
-        Searchbutton.pack(side=tk.LEFT)
+        Reservebutton = tk.Button(self.lowerframe, text='RESERVE', command='search', width=30, height=5)
+        Reservebutton.pack(side=tk.LEFT)
 
         #Create a row of stuff for editing
         id = Label(self.editframe, text="Category",relief="ridge")
@@ -103,12 +105,17 @@ class HeadGUI:
         reservation_entry = Entry(self.editframe)
         reservation_entry.grid(row=1, column=7)
 
+        # Scrollbar for Listbox
+        yscroll = Scrollbar(self.bottomframe)
+        yscroll.pack(side=RIGHT, fill=Y)
 
-        #Create and pack inventory list
-        columns = ('#1', '#2', '#3','#4', '#5', '#6', '#7','#8')
-        Inventorylist = ttk.Treeview(self.bottomframe, columns=columns, show='headings')
-        Inventorylist.grid(row=0, column=0, padx=0, pady=10)
-        Inventorylist.pack(side=tk.BOTTOM,)
+        xscroll = Scrollbar(self.bottomframe, orient='horizontal')
+        xscroll.pack(side=BOTTOM, fill=X)
+
+        # Create and pack inventory list
+        columns = ('#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8')
+        Inventorylist = ttk.Treeview(self.bottomframe, columns=columns, show='headings',yscrollcommand=yscroll.set, xscrollcommand=xscroll.set)
+        Inventorylist.pack(side=tk.TOP)
 
         # define our columns and set the Headers
         Inventorylist.heading('#1', text='ID')
@@ -120,6 +127,17 @@ class HeadGUI:
         Inventorylist.heading('#7', text='Quality')
         Inventorylist.heading('#8', text='Reserved')
 
+        # Set Column Width/height
+        Inventorylist.column("#1", width=190)
+        Inventorylist.column("#2", width=190)
+        Inventorylist.column("#3", width=190)
+        Inventorylist.column("#4", width=190)
+        Inventorylist.column("#5", width=190)
+        Inventorylist.column("#6", width=190)
+        Inventorylist.column("#7", width=190)
+        Inventorylist.column("#8", width=190)
+
+
         # Add some data to the listbox
         Inventorylist.insert('', 'end', values=('Row 1 Column 1', 'Row 1 Column 2', 'Row 1 Column 3', 'Row 1 column 4', 'Row 1 Column 5', 'Row 1, column 6', 'Row 1 column 7', 'row 1 column 8'))
         Inventorylist.insert('', 'end', values=('Row 2 Column 1', 'Row 2 Column 2', 'Row 2 Column 3'))
@@ -128,25 +146,56 @@ class HeadGUI:
         Inventorylist.insert('', 'end', values=('Row 5 Column 1', 'Row 5 Column 2', 'Row 5 Column 5'))
         Inventorylist.insert('', 'end', values=('Row 6 Column 1', 'Row 6 Column 2', 'Row 6 Column 6'))
 
-        #Scrollbar for Listbox
 
-        y_scrollbar = tk.Scrollbar(self.root, orient=tk.VERTICAL)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        #Select Row and Edit Row
+        def select_record():
+            # clear entry boxes
+            id_entry.delete(0, END)
+            Category_entry.delete(0, END)
+            itemdesc_entry.delete(0, END)
+            location_entry.delete(0, END)
+            purchaselocation_entry.delete(0, END)
+            quality_entry.delete(0,END)
+            quantity_entry.delete(0,END)
+            reservation_entry.delete(0,END)
 
-        # create a horizontal Scrollbar widget
-        x_scrollbar = tk.Scrollbar(self.root, orient=tk.HORIZONTAL)
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+            # Get row that has focus
+            selected = Inventorylist.focus()
+            # grab record values
+            values = Inventorylist.item(selected, 'values')
 
-        # pack the Listbox widget
-        Inventorylist.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            # Insert focus row in entry boxes
+            id_entry.insert(0, values[0])
+            Category_entry.insert(0, values[0])
+            itemdesc_entry.insert(0, values[0])
+            location_entry.insert(0, values[0])
+            purchaselocation_entry.insert(0, values[0])
+            quality_entry.insert(0, values[0])
+            quantity_entry.insert(0, values[0])
+            reservation_entry.insert(0, values[0])
 
-        # attach the vertical scrollbar to the listbox
-        Inventorylist.config(yscrollcommand=y_scrollbar.set)
-        y_scrollbar.config(command=Inventorylist.yview)
+        # Update Record
+        def update_record():
+            selected = Inventorylist.focus()
 
-        # attach the horizontal scrollbar to the listbox
-        Inventorylist.config(xscrollcommand=x_scrollbar.set)
-        x_scrollbar.config(command=Inventorylist.xview)
+            # save new data
+            Inventorylist.item(selected, text="",
+                         values=(id_entry.get(), Category_entry.get(), itemdesc_entry.get(), location_entry.get(), purchaselocation_entry.get(),quality_entry.get(), quantity_entry.delete.get(),reservation_entry.get()))
+
+            # clear entry boxes
+            id_entry.delete(0, END)
+            Category_entry.delete(0, END)
+            itemdesc_entry.delete(0, END)
+            location_entry.delete(0, END)
+            purchaselocation_entry.delete(0, END)
+            quality_entry.delete(0, END)
+            quantity_entry.delete(0, END)
+            reservation_entry.delete(0, END)
+
+
+
+
+
 
 
         # Run the GUI main loop
