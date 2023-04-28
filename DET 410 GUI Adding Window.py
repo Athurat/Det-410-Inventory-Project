@@ -54,7 +54,7 @@ class HeadGUI:
         Searchbutton.pack(side=tk.LEFT)
 
         #Create a row of stuff for editing
-        id = Label(self.editframe, text="Category",relief="ridge", width=10)
+        id = Label(self.editframe, text="Category",relief="ridge")
         id.grid(row=0, column=0)
 
         Catcode = Label(self.editframe, text="CatCode",relief="ridge")
@@ -105,32 +105,48 @@ class HeadGUI:
 
 
         #Create and pack inventory list
-        Inventorylist = tk.Listbox(self.bottomframe, font =('Arial',40), bg='white', fg='blue', relief='ridge',width = 100,height = 7)
-        Inventorylist.pack(side=tk.BOTTOM)
+        columns = ('#1', '#2', '#3','#4', '#5', '#6', '#7','#8')
+        Inventorylist = ttk.Treeview(self.bottomframe, columns=columns, show='headings')
+        Inventorylist.grid(row=0, column=0, padx=0, pady=10)
+        Inventorylist.pack(side=tk.BOTTOM,)
 
+        # define our columns and set the Headers
+        Inventorylist.heading('#1', text='ID')
+        Inventorylist.heading('#2', text='Category Code')
+        Inventorylist.heading('#3', text='Item Description')
+        Inventorylist.heading('#4', text='Location')
+        Inventorylist.heading('#5', text='Purchase Location')
+        Inventorylist.heading('#6', text='Quantity')
+        Inventorylist.heading('#7', text='Quality')
+        Inventorylist.heading('#8', text='Reserved')
 
+        # Add some data to the listbox
+        Inventorylist.insert('', 'end', values=('Row 1 Column 1', 'Row 1 Column 2', 'Row 1 Column 3', 'Row 1 column 4', 'Row 1 Column 5', 'Row 1, column 6', 'Row 1 column 7', 'row 1 column 8'))
+        Inventorylist.insert('', 'end', values=('Row 2 Column 1', 'Row 2 Column 2', 'Row 2 Column 3'))
+        Inventorylist.insert('', 'end', values=('Row 3 Column 1', 'Row 3 Column 2', 'Row 3 Column 3'))
+        Inventorylist.insert('', 'end', values=('Row 4 Column 1', 'Row 4 Column 2', 'Row 4 Column 4'))
+        Inventorylist.insert('', 'end', values=('Row 5 Column 1', 'Row 5 Column 2', 'Row 5 Column 5'))
+        Inventorylist.insert('', 'end', values=('Row 6 Column 1', 'Row 6 Column 2', 'Row 6 Column 6'))
 
-        #Scrollbars for the Inventory List
-        game_scroll = Scrollbar(self.bottomframe)
-        game_scroll.pack(side=RIGHT, fill=Y)
+        #Scrollbar for Listbox
 
-        game_scroll = Scrollbar(self.bottomframe, orient='horizontal')
-        game_scroll.pack(side=BOTTOM, fill=X)
+        y_scrollbar = tk.Scrollbar(self.root, orient=tk.VERTICAL)
+        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # Create table frame
-        scroll = ttk.Scrollbar(self.bottomframe, yscrollcommand=game_scroll.set, xscrollcommand=game_scroll.set)
+        # create a horizontal Scrollbar widget
+        x_scrollbar = tk.Scrollbar(self.root, orient=tk.HORIZONTAL)
+        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
 
-        scroll.pack()
+        # pack the Listbox widget
+        Inventorylist.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        game_scroll.config(command=scroll.yview)
-        game_scroll.config(command=scroll.xview)
+        # attach the vertical scrollbar to the listbox
+        Inventorylist.config(yscrollcommand=y_scrollbar.set)
+        y_scrollbar.config(command=Inventorylist.yview)
 
-        #Add Inventory List headers
-
-        #Add Button GUI
-
-        #create
-
+        # attach the horizontal scrollbar to the listbox
+        Inventorylist.config(xscrollcommand=x_scrollbar.set)
+        x_scrollbar.config(command=Inventorylist.xview)
 
 
         # Run the GUI main loop
