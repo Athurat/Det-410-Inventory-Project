@@ -130,7 +130,7 @@ class HeadGUI:
         # Add all data to the listbox
         rows = cur.fetchall()
         for row in rows:
-            rows.insert("",tk.END,values=row)
+            Inventorylist.insert("",tk.END,values=row)
 
         # Select Row and Edit Row
         def select_record():
@@ -161,11 +161,34 @@ class HeadGUI:
 
         # Update Record
         def update_record():
+            conn = lite.connect('DET410 Inventory DB.db')
+
+            cur = conn.cursor()
             selected = Inventorylist.focus()
             # save new data
             Inventorylist.item(selected, text="", values=(id_entry.get(), Category_entry.get(), itemdesc_entry.get(), location_entry.get(),
-                                       purchaselocation_entry.get(), quality_entry.get(), quantity_entry.delete.get(),
+                                       purchaselocation_entry.get(), quality_entry.get(), quantity_entry.get(),
                                        reservation_entry.get()))
+            cur.execute("""UPDATE Items SET
+             CatCode = :Category,
+             ItemDesc = :itemdesc,
+             Location = :location,
+             PurchaseLocation = :purchaselocation,
+             Quality = :quality,
+             Quantity = :quantity,
+             Reserved = :reservation
+             
+             WHERE OID = :OID""",
+            {'Category': Category_entry.get(),
+             'itemdesc': itemdesc_entry.get(),
+             'location': location_entry.get(),
+             'purchaselocation': purchaselocation_entry.get(),
+             'quality': quality_entry.get(),
+             'quantity': quantity_entry.get(),
+             'reservation': reservation_entry.get(),
+             'OID': id_entry.get()})
+
+            conn.commit()
 
             # clear entry boxes
             id_entry.delete(0, END)
@@ -178,7 +201,30 @@ class HeadGUI:
             reservation_entry.delete(0, END)
 
         def add_record():
+            conn = lite.connect('DET410 Inventory DB.db')
+
+            cur = conn.cursor()
             selected = Inventorylist.focus()
+            # save new data
+            Inventorylist.item(selected, text="",
+                               values=(id_entry.get(), Category_entry.get(), itemdesc_entry.get(), location_entry.get(),
+                                       purchaselocation_entry.get(), quality_entry.get(), quantity_entry.get(),
+                                       reservation_entry.get()))
+            cur.execute("""INSERT INTO Items 
+             WHERE ('')"""
+
+            conn.commit()
+
+            # clear entry boxes
+            id_entry.delete(0, END)
+            Category_entry.delete(0, END)
+            itemdesc_entry.delete(0, END)
+            location_entry.delete(0, END)
+            purchaselocation_entry.delete(0, END)
+            quality_entry.delete(0, END)
+            quantity_entry.delete(0, END)
+            reservation_entry.delete(0, END)
+
 
 
         def delete_record():
