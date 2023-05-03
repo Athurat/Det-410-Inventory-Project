@@ -1,6 +1,14 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+import sqlite3 as lite
+import sys
+
+#Get the Database Data
+conn = lite.connect('DET410 Inventory DB.db')
+with conn:
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Items")
 
 class HeadGUI:
     def __init__ (self):
@@ -94,7 +102,10 @@ class HeadGUI:
         Inventorylist = ttk.Treeview(self.bottomframe, columns=columns, show='headings',yscrollcommand=yscroll.set, xscrollcommand=xscroll.set)
         Inventorylist.pack(side=tk.TOP)
 
+        Inventorylist["columns"] = columns
+
         # define our columns and set the Headers
+
         Inventorylist.heading('#1', text='ID')
         Inventorylist.heading('#2', text='Category Code')
         Inventorylist.heading('#3', text='Item Description')
@@ -105,6 +116,7 @@ class HeadGUI:
         Inventorylist.heading('#8', text='Reserved')
 
         # Set Column Width/height
+
         Inventorylist.column("#1", width=190)
         Inventorylist.column("#2", width=190)
         Inventorylist.column("#3", width=190)
@@ -115,13 +127,10 @@ class HeadGUI:
         Inventorylist.column("#8", width=190)
 
 
-        # Add some data to the listbox
-        Inventorylist.insert('', 'end', values=('Row 1 Column 1', 'Row 1 Column 2', 'Row 1 Column 3', 'Row 1 column 4', 'Row 1 Column 5', 'Row 1, column 6', 'Row 1 column 7', 'row 1 column 8'))
-        Inventorylist.insert('', 'end', values=('Row 2 Column 1', 'Row 2 Column 2', 'Row 2 Column 3'))
-        Inventorylist.insert('', 'end', values=('Row 3 Column 1', 'Row 3 Column 2', 'Row 3 Column 3'))
-        Inventorylist.insert('', 'end', values=('Row 4 Column 1', 'Row 4 Column 2', 'Row 4 Column 4'))
-        Inventorylist.insert('', 'end', values=('Row 5 Column 1', 'Row 5 Column 2', 'Row 5 Column 5'))
-        Inventorylist.insert('', 'end', values=('Row 6 Column 1', 'Row 6 Column 2', 'Row 6 Column 6'))
+        # Add all data to the listbox
+        rows = cur.fetchall()
+        for row in rows:
+            rows.insert("",tk.END,values=row)
 
         # Select Row and Edit Row
         def select_record():
@@ -200,6 +209,9 @@ class HeadGUI:
 
         entry = tk.Entry(self.middleframe, width=20, font=('Arial', 40))
         entry.pack(expand=True, fill='y')
+
+    #Close Database
+        conn.close()
 
         # Run the GUI main loop
         self.root.mainloop()
