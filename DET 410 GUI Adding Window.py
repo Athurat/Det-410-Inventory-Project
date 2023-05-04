@@ -6,14 +6,13 @@ import sys
 
 #Get the Database Data
 conn = lite.connect('DET410 Inventory DB.db')
-with conn:
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM Items")
+
 
 class HeadGUI:
     def __init__ (self):
         # create the main window
         self.root = tk.Tk()
+        self.root.geometry("1920x1080")
         #Create Frames
         self.topframe = Frame(self.root)
         self.middleframe = Frame(self.root)
@@ -41,7 +40,7 @@ class HeadGUI:
         Quote_label.pack(side=tk.RIGHT)
 
         #Create a row of stuff for editing
-        id = Label(self.editframe, text="Category",relief="ridge")
+        id = Label(self.editframe, text="ID",relief="ridge")
         id.grid(row=0, column=0)
 
         Catcode = Label(self.editframe, text="CatCode",relief="ridge")
@@ -111,8 +110,8 @@ class HeadGUI:
         Inventorylist.heading('#3', text='Item Description')
         Inventorylist.heading('#4', text='Location')
         Inventorylist.heading('#5', text='Purchase Location')
-        Inventorylist.heading('#6', text='Quantity')
-        Inventorylist.heading('#7', text='Quality')
+        Inventorylist.heading('#6', text='Quality')
+        Inventorylist.heading('#7', text='Quantity')
         Inventorylist.heading('#8', text='Reserved')
 
         # Set Column Width/height
@@ -125,12 +124,14 @@ class HeadGUI:
         Inventorylist.column("#6", width=190)
         Inventorylist.column("#7", width=190)
         Inventorylist.column("#8", width=190)
+        with conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Items")
 
-
-        # Add all data to the listbox
-        rows = cur.fetchall()
-        for row in rows:
-            Inventorylist.insert("",tk.END,values=row)
+            # Add all data to the listbox
+            rows = cur.fetchall()
+            for row in rows:
+                Inventorylist.insert("",tk.END,values=row)
 
         # Select Row and Edit Row
         def select_record():
@@ -188,8 +189,6 @@ class HeadGUI:
              'reservation': reservation_entry.get(),
              'OID': id_entry.get()})
 
-            conn.commit()
-
             # clear entry boxes
             id_entry.delete(0, END)
             Category_entry.delete(0, END)
@@ -200,32 +199,50 @@ class HeadGUI:
             quantity_entry.delete(0, END)
             reservation_entry.delete(0, END)
 
+            # Gets each row and deletes the content of the listbox
+            for item in Inventorylist.get_children():
+                Inventorylist.delete(item)
+            # Calls Back the Contents of the Listbox
+            with conn:
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM Items")
+                rows = cur.fetchall()
+                for row in rows:
+                    Inventorylist.insert("", tk.END, values=row)
+
+            conn.commit()
+            conn.close()
+
+        #adding new rows of data
         def add_record():
             conn = lite.connect('DET410 Inventory DB.db')
-
             cur = conn.cursor()
-            selected = Inventorylist.focus()
-            # save new data
-            Inventorylist.item(selected, text="",
-                               values=(id_entry.get(), Category_entry.get(), itemdesc_entry.get(), location_entry.get(),
-                                       purchaselocation_entry.get(), quality_entry.get(), quantity_entry.get(),
-                                       reservation_entry.get()))
-            cur.execute("""INSERT INTO Items 
-             WHERE ('')"""
-
+            ID = id_entry.get()
+            Category = Category_entry.get()
+            Itemdesc = itemdesc_entry.get()
+            Location = location_entry.get()
+            PurchaseLoc = purchaselocation_entry.get()
+            Quality = quality_entry.get()
+            Quantity = quantity_entry.get()
+            Reservation = reservation_entry.get()
+            cur.execute('''INSERT INTO Items (ID, CatCode, ItemDesc, Location, PurchaseLocation, Quality, Quantity, Reserved) VALUES
+             (?, ?, ?, ?, ?, ?, ?, ?)''',(ID, Category, Itemdesc, Location, PurchaseLoc, Quality, Quantity,Reservation))
             conn.commit()
+            conn.close()
 
-            # clear entry boxes
-            id_entry.delete(0, END)
-            Category_entry.delete(0, END)
-            itemdesc_entry.delete(0, END)
-            location_entry.delete(0, END)
-            purchaselocation_entry.delete(0, END)
-            quality_entry.delete(0, END)
-            quantity_entry.delete(0, END)
-            reservation_entry.delete(0, END)
+            conn = lite.connect('DET410 Inventory DB.db')
+            #Gets each row and deletes the content of the listbox
+            for item in Inventorylist.get_children():
+                Inventorylist.delete(item)
+            #Calls Back the Contents of the Listbox
+            with conn:
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM Items")
+                rows = cur.fetchall()
+                for row in rows:
+                    Inventorylist.insert("", tk.END, values=row)
 
-
+            conn.close()
 
         def delete_record():
             selected = Inventorylist.focus()
