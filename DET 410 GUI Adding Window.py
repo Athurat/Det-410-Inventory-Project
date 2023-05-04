@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk
 import sqlite3 as lite
 import sys
+from PIL import ImageTk, Image
 
 #Get the Database Data
 conn = lite.connect('DET410 Inventory DB.db')
@@ -27,6 +28,13 @@ class HeadGUI:
         self.editframe.pack()
         self.bottomframe.pack()
 
+
+        #image
+        img = ImageTk.PhotoImage(Image.open("jet.jpg"))
+
+        # Create a Label Widget to display the text or Image
+        label = Label(self.topframe, image=img)
+        label.pack()
         # set the window title
         self.root.title("DET 410 Inventory and Requisitions")
 
@@ -243,9 +251,77 @@ class HeadGUI:
                     Inventorylist.insert("", tk.END, values=row)
 
             conn.close()
+        def search():
+
+            q = entry.get()
+            if q == "":
+                conn = lite.connect('DET410 Inventory DB.db')
+                cur = conn.cursor()
+
+                #refresh
+                for item in Inventorylist.get_children():
+                    Inventorylist.delete(item)
+                # Calls Back the Contents of the Listbox
+                with conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT * FROM Items")
+                    rows = cur.fetchall()
+                    for row in rows:
+                        Inventorylist.insert("", tk.END, values=row)
+                conn.close()
+
+            for item in Inventorylist.get_children():
+
+                values = Inventorylist.item(item)['values']
+                safe = False
+                for i in values:
+                    if q in str(i):
+                        safe = True
+
+                if not safe:
+                    #deleted
+                    Inventorylist.delete(item)
+
+
 
         def delete_record():
-            selected = Inventorylist.focus()
+
+            def delete():
+                conn = lite.connect('DET410 Inventory DB.db')
+                cur = conn.cursor()
+
+                selected = Inventorylist.focus()
+                id = Inventorylist.item(selected)['values'][0]
+
+                cur.execute ("DELETE FROM Items Where ID ="+str(id))
+                #database delete
+                test.destroy()
+                # Gets each row and deletes the content of the listbox
+                for item in Inventorylist.get_children():
+                    Inventorylist.delete(item)
+                # Calls Back the Contents of the Listbox
+
+
+                cur.execute("SELECT * FROM Items")
+                rows = cur.fetchall()
+                for row in rows:
+                    Inventorylist.insert("", tk.END, values=row)
+
+                conn.commit()
+                conn.close()
+            def cancel():
+                #do nothing
+                test.destroy()
+
+            test = tk.Toplevel(self.root)
+            l = tk.Label(test, text="are you sure you want to delete?")
+            y = tk.Button(test, text="Yes", command=delete)
+            n = tk.Button(test, text="No", command=cancel)
+
+            y.pack()
+            n.pack()
+            l.pack()
+
 
 
 
@@ -267,7 +343,7 @@ class HeadGUI:
         Editbutton.pack(side=tk.LEFT)
 
         # Create search bar
-        Searchbutton = tk.Button(self.middleframe, text='Search', command='search', width=30, height=8)
+        Searchbutton = tk.Button(self.middleframe, text='Search', command=search, width=30, height=8)
         Searchbutton.pack(side=tk.LEFT)
 
         entry = tk.Entry(self.middleframe, width=20, font=('Arial', 40))
@@ -278,6 +354,5 @@ class HeadGUI:
 
         # Run the GUI main loop
         self.root.mainloop()
-
 if __name__ == '__main__':
     mainGUI = HeadGUI()
