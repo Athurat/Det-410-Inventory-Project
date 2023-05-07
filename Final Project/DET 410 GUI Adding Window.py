@@ -22,6 +22,7 @@ class HeadGUI:
         self.lowerframe = Frame(self.root)
         self.editframe = Frame(self.root)
         self.bottomframe = Frame(self.root)
+        self.lowestframe = Frame(self.root)
 
         #Pack all Frames
         self.topframe.pack()
@@ -29,6 +30,7 @@ class HeadGUI:
         self.lowerframe.pack()
         self.editframe.pack()
         self.bottomframe.pack()
+        self.lowestframe.pack()
 
 
         #Image creation for the DET 410 Emblems
@@ -39,11 +41,16 @@ class HeadGUI:
         label.pack(side=tk.RIGHT)
         label = Label(self.topframe, image=img2)
         label.pack(side=tk.LEFT)
+
         # set the window title
         self.root.title("DET 410 Inventory and Requisitions")
 
-        #Image creation for the Bottom Filler Jets
-
+        # Make the Labels for the Key
+        label = Label(self.lowestframe, text="Key:", width = 100, height = 7, relief='sunken', font=("Arial", 10) )
+        label.pack(side=tk.LEFT)
+        label = Label(self.lowestframe, text="WP = Weapons    PT = Physical Training \nUT = Utility    DO = Decor/Furniture \nOFF = Office      KH = Kitchen/Food \nCL = Clothing      FT = Field Training ",
+                      width = 100, height = 7, relief='sunken', font=("Arial", 10))
+        label.pack(side=tk.RIGHT)
 
 
         # create a label with large font size and centered text
@@ -51,7 +58,7 @@ class HeadGUI:
         title_label.pack()
 
         #create and pack quote
-        Quote_label = tk.Label(self.middleframe, text='Fly, Fight, and Win!',height=2, font=("Arial", 40), bg="yellow", fg='Black', bd=5, relief="ridge", anchor = 'e')
+        Quote_label = tk.Label(self.middleframe, text='Fly, Fight, and Win!',height=2, font=("Arial", 40), bg="yellow", fg='Black', bd=5, relief="ridge")
         Quote_label.pack(side=tk.RIGHT)
 
         #Create a row of stuff for editing
@@ -307,16 +314,23 @@ class HeadGUI:
                 # Gets each row and deletes the content of the listbox
                 for item in Inventorylist.get_children():
                     Inventorylist.delete(item)
-                # Calls Back the Contents of the Listbox
-
-
-                cur.execute("SELECT * FROM Items")
-                rows = cur.fetchall()
-                for row in rows:
-                    Inventorylist.insert("", tk.END, values=row)
 
                 conn.commit()
                 conn.close()
+
+                # Calls Back the Contents of the Listbox
+
+                conn = lite.connect('DET410 Inventory DB.db')
+                # Gets each row and deletes the content of the listbox
+                for item in Inventorylist.get_children():
+                    Inventorylist.delete(item)
+                # Calls Back the Contents of the Listbox
+                with conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT * FROM Items")
+                    rows = cur.fetchall()
+                    for row in rows:
+                        Inventorylist.insert("", tk.END, values=row)
             def cancel():
                 #do nothing
                 test.destroy()
