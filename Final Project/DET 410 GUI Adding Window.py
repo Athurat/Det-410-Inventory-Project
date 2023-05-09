@@ -111,6 +111,8 @@ class HeadGUI:
         reservation_entry = Entry(self.editframe)
         reservation_entry.grid(row=1, column=7)
 
+
+
         # Scrollbar for Listbox
         yscroll = Scrollbar(self.bottomframe)
         yscroll.pack(side=RIGHT, fill=Y)
@@ -123,10 +125,16 @@ class HeadGUI:
         Inventorylist = ttk.Treeview(self.bottomframe, columns=columns, show='headings',yscrollcommand=yscroll.set, xscrollcommand=xscroll.set)
         Inventorylist.pack(side=tk.TOP)
 
+        #Configure the scrollbars
+        yscroll.config(command=Inventorylist.yview)
+        xscroll.config(command=Inventorylist.xview)
+
+        # Creates the Error Box for Datatype Error (ID and Quantity)
+        ######
+
         Inventorylist["columns"] = columns
 
-        # define our columns and set the Headers
-
+        # define the columns and set the Headers
         Inventorylist.heading('#1', text='ID')
         Inventorylist.heading('#2', text='Category Code')
         Inventorylist.heading('#3', text='Item Description')
@@ -137,7 +145,6 @@ class HeadGUI:
         Inventorylist.heading('#8', text='Reserved')
 
         # Set Column Width/height
-
         Inventorylist.column("#1", width=190)
         Inventorylist.column("#2", width=190)
         Inventorylist.column("#3", width=190)
@@ -304,7 +311,7 @@ class HeadGUI:
             def delete():
                 conn = lite.connect('DET410 Inventory DB.db')
                 cur = conn.cursor()
-
+                #Selected row within the entry boxes set for deletion
                 selected = Inventorylist.focus()
                 id = Inventorylist.item(selected)['values'][0]
 
@@ -334,10 +341,10 @@ class HeadGUI:
             def cancel():
                 #do nothing
                 test.destroy()
-
+                #Create new prompt box
             test = tk.Toplevel(self.root)
 
-
+                #Deletion Prompt Box
             l = tk.Label(test, text="Are you sure you want to delete this Item?",font=("Arial", 50),width = 500, height = 2 , bg="black", fg="white", bd=5, relief="ridge" )
             y = tk.Button(test, text="Yes", command=delete, width = 200, height = 2, bg="green", fg="white", bd=5)
             n = tk.Button(test, text="No", command=cancel, width = 200, height = 2, bg="red", fg="white", bd=5)
